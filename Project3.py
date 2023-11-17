@@ -218,3 +218,26 @@ plt.title('Comparison of Neutron Density with and without Feedback')
 plt.legend()
 plt.grid(True)
 plt.show()
+
+# Function to calculate the relative error between two solutions
+def relative_error(solution1, solution2):
+    return np.abs((solution1 - solution2) / solution1)
+
+# Perform a convergence check for the fully-iterated scheme
+# We will check if the solution is converging as we decrease the time step
+convergence_errors = []
+for i in range(len(timesteps) - 1):
+    dt1, dt2 = timesteps[i], timesteps[i+1]
+    # Compare the solution at t=0.001s for two consecutive time steps
+    N1, N2 = solutions_picard[dt1][-1, 0], solutions_picard[dt2][-1, 0]
+    error = relative_error(N1, N2)
+    convergence_errors.append(error)
+    print(f'Convergence error between dt={dt1:.1e} and dt={dt2:.1e}: {error:.2e}')
+
+# Check for the expected order of accuracy
+# We expect the error to reduce by a factor of 4 (2^2) if the method is second order accurate
+expected_reduction = 4
+for i in range(len(convergence_errors) - 1):
+    reduction_factor = convergence_errors[i] / convergence_errors[i+1]
+    print(f'Reduction factor between dt={timesteps[i]:.1e} and dt={timesteps[i+1]:.1e}: '
+          f'{reduction_factor:.2f} (expected: {expected_reduction})')
